@@ -3,6 +3,8 @@ package com.customers.customermgmt.controller;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,7 @@ public class CustomerContoller {
 
 	@Autowired(required = true)
 	private CustomerService customerService;
+	private static final Logger logger = LoggerFactory.getLogger(CustomerContoller.class);
 
 	/**
 	 * this method used for to test app is running or not
@@ -48,8 +51,11 @@ public class CustomerContoller {
 
 	@GetMapping("/getCustomerList")
 	public ResponseEntity<?> getCustomerList() {
-		return customerService.getAllCustomerData();
-
+		List<Customer> allCustomerdata = customerService.getAllCustomerData();
+		if(allCustomerdata != null && !allCustomerdata.isEmpty()) {
+		return new ResponseEntity<List<Customer>>(allCustomerdata,HttpStatus.OK);
+		}
+		return new ResponseEntity<String>("no data is Present",HttpStatus.BAD_REQUEST);
 	}
 
 	@PutMapping("/update")

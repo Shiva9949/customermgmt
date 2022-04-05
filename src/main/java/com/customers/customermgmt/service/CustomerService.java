@@ -9,8 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.customers.customermgmt.dto.CustomerDTO;
@@ -22,29 +20,19 @@ public class CustomerService {
 
 	@Autowired(required = true)
 	private CustomerRepository customeRepository;
-	
-	private static final Logger logger = LoggerFactory.getLogger(CustomerDTO.class);
-	
-	public ResponseEntity<?> getAllCustomerData() {
-		List<Customer> customersList =  customeRepository.findAll();
+
+	private static final Logger logger = LoggerFactory.getLogger(CustomerService.class);
+
+	public List<Customer> getAllCustomerData() {
+		List<Customer> customersList = customeRepository.findAll();
+		logger.info("TeCustomer data is {}",customersList);
+		return customersList;
 		
-		logger.info("TeCustomer data is {}");
-		System.out.println("customersList" + customersList);
-		
-		if (customersList.isEmpty()) {
-			return new ResponseEntity<String>("no data is present", HttpStatus.BAD_REQUEST);
-		}
-		return new ResponseEntity<List<Customer>>(customersList, HttpStatus.CREATED);
 
 	}
 
-	public ResponseEntity<String> SaveCustomer(Customer customerManagement) {
-		String op = customerManagement.getName();
-		if (op != null && !op.isEmpty()) {
-			customeRepository.save(customerManagement);
-			return new ResponseEntity<String>("The Customer is saved Succesfully", HttpStatus.CREATED);
-		}
-		return new ResponseEntity<String>("the data is null", HttpStatus.BAD_REQUEST);
+	public void SaveCustomer(Customer customerManagement) {
+		customeRepository.save(customerManagement);
 
 	}
 
@@ -61,9 +49,11 @@ public class CustomerService {
 		try {
 			customeRepository.deleteById(id);
 		} catch (EmptyResultDataAccessException e) {
+			logger.error("The EmptyResult  exception is"+e);
 			return "No record found with id: " + id;
 		} catch (Exception e) {
 			e.printStackTrace();
+			logger.error("The exeption is "+e);
 			return "Issue while deleting the record, issue is: " + e.getMessage();
 		}
 
@@ -73,6 +63,7 @@ public class CustomerService {
 	public List<Customer> findCustomersByName(String name) {
 		if (name != null) {
 			List<Customer> customerDataByName = customeRepository.findByName(name);
+			logger.info("CustomerDataByname is : {}",customerDataByName);
 			return customerDataByName;
 		}
 
@@ -170,5 +161,5 @@ public class CustomerService {
 		return al;
 
 	}
-	
+
 }
