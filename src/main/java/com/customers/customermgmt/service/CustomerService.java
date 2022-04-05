@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -20,11 +22,15 @@ public class CustomerService {
 
 	@Autowired(required = true)
 	private CustomerRepository customeRepository;
-
+	
+	private static final Logger logger = LoggerFactory.getLogger(CustomerDTO.class);
+	
 	public ResponseEntity<?> getAllCustomerData() {
-		ArrayList<Customer> customersList = new ArrayList<Customer>();
-		customeRepository.findAll().forEach(customerDetails -> customersList.add(customerDetails));
+		List<Customer> customersList =  customeRepository.findAll();
+		
+		logger.info("TeCustomer data is {}");
 		System.out.println("customersList" + customersList);
+		
 		if (customersList.isEmpty()) {
 			return new ResponseEntity<String>("no data is present", HttpStatus.BAD_REQUEST);
 		}
