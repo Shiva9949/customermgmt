@@ -45,7 +45,7 @@ public class CustomerContoller {
 			return new ResponseEntity<String>("the data is null", HttpStatus.BAD_REQUEST);
 		}
 		customerService.SaveCustomer(customerManagement);
-		return new ResponseEntity<String>("the customer is saved", HttpStatus.CREATED);
+		return new ResponseEntity<String>("the customer is saved with name"+c, HttpStatus.CREATED);
 
 	}
 

@@ -33,7 +33,7 @@ public class CustomerService {
 
 	public void SaveCustomer(Customer customerManagement) {
 		customeRepository.save(customerManagement);
-
+		
 	}
 
 	public void updateCusomerData(Customer customerManagement) {
