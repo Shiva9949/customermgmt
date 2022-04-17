@@ -1,7 +1,6 @@
 package com.customers.customermgmt.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,14 +13,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.customers.customermgmt.dto.CustomerDTO;
 import com.customers.customermgmt.entities.Customer;
+import com.customers.customermgmt.exception.CustomerManagementIssueException;
 import com.customers.customermgmt.service.CustomerService;
 
 @RestController
+@RequestMapping("/customer")
 public class CustomerContoller {
 
 	@Autowired(required = true)
@@ -33,33 +35,34 @@ public class CustomerContoller {
 	 * 
 	 * @return
 	 */
-	@GetMapping("/")
+	@GetMapping("/test/")
 	public String display() {
 		return "Customer management";
 	}
 
-	@PostMapping("/save")
-	public ResponseEntity<String> savecustomer(@RequestBody Customer customerManagement) {
-		String c = customerManagement.name;
-		if (c == null) {
+	@PostMapping
+	public ResponseEntity<String> savecustomer(@RequestBody Customer customer) throws CustomerManagementIssueException {
+		logger.info("calling saving customer method..");
+		if (customer == null) {
 			return new ResponseEntity<String>("the data is null", HttpStatus.BAD_REQUEST);
 		}
-		customerService.SaveCustomer(customerManagement);
-		return new ResponseEntity<String>("the customer is saved with name"+c, HttpStatus.CREATED);
+		String c = customer.getName();
+		customerService.SaveCustomer(customer);
+		return new ResponseEntity<String>("The customer saved with name : "+c, HttpStatus.CREATED);
 
 	}
 
-	@GetMapping("/getCustomerList")
+	@GetMapping
 	public ResponseEntity<?> getCustomerList() {
 		List<Customer> allCustomerdata = customerService.getAllCustomerData();
 		if(allCustomerdata != null && !allCustomerdata.isEmpty()) {
 		return new ResponseEntity<List<Customer>>(allCustomerdata,HttpStatus.OK);
 		}
-		return new ResponseEntity<String>("no data is Present",HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<String>("No data is Present",HttpStatus.BAD_REQUEST);
 	}
 
-	@PutMapping("/update")
-	public ResponseEntity<String> updateCustomerDetails(@RequestBody Customer customerManagement) {
+	@PutMapping
+	public ResponseEntity<String> updateCustomerDetails(@RequestBody Customer customerManagement) throws CustomerManagementIssueException {
 
 		if (customerManagement != null && customerManagement.getId() != null) {
 			customerService.updateCusomerData(customerManagement);
@@ -70,16 +73,13 @@ public class CustomerContoller {
 
 	}
 
-	@GetMapping("/findByid/{id}")
-	public ResponseEntity<?> finddetailsByid(@PathVariable("id") Integer id) {
-		Optional<Customer> customerManagement = customerService.findCustomerById(id);
-		if (customerManagement.isPresent()) {
-			return new ResponseEntity<Customer>(customerManagement.get(), HttpStatus.CREATED);
-		}
-		return new ResponseEntity<String>("No data is present with the ID : " + id, HttpStatus.CREATED);
+	@GetMapping("/{id}")
+	public Customer finddetailsByid(@PathVariable("id") Integer id) throws CustomerManagementIssueException {
+		Customer customerManagement = customerService.findCustomerById(id);
+		return customerManagement;
 	}
 
-	@DeleteMapping("/delete/{id}")
+	@DeleteMapping("/{id}")
 	public ResponseEntity<String> deleteCustomerById(@PathVariable("id") Integer id) {
 //		Optional<Customer> customerDatawithId = customerService.findCustomerById(id);
 //		if(customerDatawithId.isPresent()) {
@@ -94,7 +94,7 @@ public class CustomerContoller {
 
 	}
 
-	@GetMapping("/findByName/{name}")
+	@GetMapping("/name/{name}")
 	public ResponseEntity<?> getCustomerDataWithName(@PathVariable("name") String name) {
 		List<Customer> customerDataWithName = customerService.findCustomersByName(name);
 		if (!customerDataWithName.isEmpty() && customerDataWithName != null) {
@@ -104,7 +104,7 @@ public class CustomerContoller {
 
 	}
 
-	@GetMapping("/findByCountry/{country}")
+	@GetMapping("/country/{country}")
 	public ResponseEntity<?> getCustomerDataWithCountry(@PathVariable("country") String country) {
 
 		List<Customer> customerDataWithCountry = customerService.findCustomersByCountry(country);
@@ -128,7 +128,6 @@ public class CustomerContoller {
 	}
 
 	@GetMapping("/findCustomersWithVirable/{name}")
-
 	public ResponseEntity<?> getCustomerNamesWithVirable(@PathVariable("name") String name) {
 		List<String> customerNames = customerService.getCusomerNamesWithVariable(name);
 		if (customerNames != null && !customerNames.isEmpty()) {

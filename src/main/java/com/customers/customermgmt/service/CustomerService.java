@@ -2,7 +2,6 @@ package com.customers.customermgmt.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -13,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import com.customers.customermgmt.dto.CustomerDTO;
 import com.customers.customermgmt.entities.Customer;
+import com.customers.customermgmt.exception.CustomerManagementIssueException;
+import com.customers.customermgmt.exception.NoRecordFoundException;
 import com.customers.customermgmt.repository.CustomerRepository;
 
 @Service
@@ -25,35 +26,47 @@ public class CustomerService {
 
 	public List<Customer> getAllCustomerData() {
 		List<Customer> customersList = customeRepository.findAll();
-		logger.info("TeCustomer data is {}",customersList);
+		if (customersList == null || customersList.isEmpty()) {
+			throw new NoRecordFoundException("NO Data is Present");
+		}
+		logger.info("The Customer data is {}", customersList);
 		return customersList;
-		
+	}
+
+	public Customer SaveCustomer(Customer customerManagement) throws CustomerManagementIssueException {
+		if (customerManagement == null) {
+			throw new CustomerManagementIssueException();
+		}
+		return customeRepository.save(customerManagement);
 
 	}
 
-	public void SaveCustomer(Customer customerManagement) {
-		customeRepository.save(customerManagement);
-		
+	public void updateCusomerData(Customer customerManagement) throws CustomerManagementIssueException {
+	if(customerManagement == null) {
+		throw new NoRecordFoundException("The update could not be null");
+	}
+	Customer c = findCustomerById(customerManagement.getId());
+		customeRepository.save(c);
+
 	}
 
-	public void updateCusomerData(Customer customerManagement) {
-		customeRepository.save(customerManagement);
-
-	}
-
-	public Optional<Customer> findCustomerById(Integer id) {
-		return customeRepository.findById(id);
+	public Customer findCustomerById(Integer id) throws CustomerManagementIssueException {
+		Customer customerdata = customeRepository.findById(id).get();
+		if(customerdata ==null) {
+			throw new CustomerManagementIssueException("Please Enter Correct Id"+id);
+		}
+		return customerdata;
 	}
 
 	public String deleteById(Integer id) {
 		try {
 			customeRepository.deleteById(id);
 		} catch (EmptyResultDataAccessException e) {
-			logger.error("The EmptyResult  exception is"+e);
+			logger.error("The EmptyResult  exception is" + e);
 			return "No record found with id: " + id;
 		} catch (Exception e) {
 			e.printStackTrace();
-			logger.error("The exeption is "+e);
+			logger.error("The exeption is " + e);
 			return "Issue while deleting the record, issue is: " + e.getMessage();
 		}
 
@@ -63,7 +76,7 @@ public class CustomerService {
 	public List<Customer> findCustomersByName(String name) {
 		if (name != null) {
 			List<Customer> customerDataByName = customeRepository.findByName(name);
-			logger.info("CustomerDataByname is : {}",customerDataByName);
+			logger.info("CustomerDataByname is : {}", customerDataByName);
 			return customerDataByName;
 		}
 
