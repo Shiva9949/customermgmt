@@ -1,7 +1,9 @@
 package com.customers.customermgmt.service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -11,6 +13,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import com.customers.customermgmt.dto.CustomerDTO;
+import com.customers.customermgmt.dto.CustomerNameAndCity;
 import com.customers.customermgmt.entities.Customer;
 import com.customers.customermgmt.exception.CustomerManagementIssueException;
 import com.customers.customermgmt.exception.NoRecordFoundException;
@@ -174,5 +177,52 @@ public class CustomerService {
 		return al;
 
 	}
+	public List<?> stream(){
+		List<Customer> customersData = customeRepository.findAll();
+/*		
+		List<String> customerNames = customersData.stream()
+				.map(names -> names.getName())
+				.collect(Collectors.toList());
+				
+				
+		List<String> countries = customersData.stream()
+			.map(cust -> cust.getCountries())
+			.flatMap(List::stream)   // --- flatmap
+			.collect(Collectors.toList());
+*/
+		
+		List<CustomerNameAndCity> customerNames = 
+				customersData.stream()
+				.map(customer -> {
+						CustomerNameAndCity namesandcity = new CustomerNameAndCity();
+						namesandcity.setCity(customer.getCity());
+						namesandcity.setName(customer.getName());
+						return namesandcity;
+				})
+				.collect(Collectors.toList());
+		
+	Optional<Customer>  maxcust =	customersData.stream()
+		.max(Comparator.comparing(Customer::getId));
+	
+	customersData.stream()
+	.sorted(Comparator.comparing(Customer::getId)
+			.thenComparing(Customer::getName))
+	.collect(Collectors.toList());
+	
+	
+	boolean bool = customersData.stream()
+	.anyMatch(cust -> cust.getCity().equalsIgnoreCase("America"));
+	
+		
+		for(Customer cust : customersData) {
+		}
+		
+		customersData.stream().forEach(cust -> {
+		});
+
+		
+		return customerNames;
+	}
+	
 
 }

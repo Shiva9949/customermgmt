@@ -62,7 +62,7 @@ public class CustomerContoller {
 	}
 
 	@PutMapping
-	public ResponseEntity<String> updateCustomerDetails(@RequestBody Customer customerManagement) throws CustomerManagementIssueException {
+	public ResponseEntity<String> updateCustomerDetails(@RequestBody(required = true) Customer customerManagement) throws CustomerManagementIssueException {
 
 		if (customerManagement != null && customerManagement.getId() != null) {
 			customerService.updateCusomerData(customerManagement);
@@ -181,5 +181,9 @@ public class CustomerContoller {
 		List<CustomerDTO> dtoCitys = customerService.getcitysData(country);
 			return dtoCitys;
 		
+	}
+	@GetMapping("/stream")
+	public List<?> stream(){
+		return customerService.stream();
 	}
 }
